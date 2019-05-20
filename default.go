@@ -59,7 +59,7 @@ func (dt *Default) HTMLTemplate() string {
     .email-masthead_name {
       font-size: 16px;
       font-weight: bold;
-      color: #2F3133;
+      color: #2F3133 !important;
       text-decoration: none;
       text-shadow: 0 1px 0 white;
     }
@@ -164,7 +164,7 @@ func (dt *Default) HTMLTemplate() string {
     }
     cite {
       display: block;
-      font-size: 0.925rem; 
+      font-size: 0.925rem;
     }
     cite:before {
       content: "\2014 \0020";
@@ -235,9 +235,9 @@ func (dt *Default) HTMLTemplate() string {
     .button {
       display: inline-block;
       width: 200px;
-      background-color: #3869D4;
+      background-color: {{ if .Email.Body.Actions }}{{ (index .Email.Body.Actions 0).Button.Color }}{{ else }}#3869D4{{ end}};
       border-radius: 3px;
-      color: #ffffff;
+      color: #ffffff !important;
       font-size: 15px;
       line-height: 45px;
       text-align: center;
@@ -296,7 +296,7 @@ func (dt *Default) HTMLTemplate() string {
                       {{ .Email.Body.FreeMarkdown.ToHTML }}
                     {{ else }}
 
-                      {{ with .Email.Body.Dictionary }} 
+                      {{ with .Email.Body.Dictionary }}
                         {{ if gt (len .) 0 }}
                           <dl class="body-dictionary">
                             {{ range $entry := . }}
@@ -363,6 +363,15 @@ func (dt *Default) HTMLTemplate() string {
                         {{ if gt (len .) 0 }}
                           {{ range $action := . }}
                             <p>{{ $action.Instructions }}</p>
+														{{ "<!--[if mso]>" | html }}
+                              <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $action.Button.Link }}" style="height:40px;v-text-anchor:middle;width:300px;" arcsize="10%" stroke="f" fillcolor="{{ $action.Button.Color }}">
+                              <w:anchorlock/>
+                              <center style="color:{{ $action.Button.TextColor }};font-family:sans-serif;font-size:16px;font-weight:bold;">
+                                {{ $action.Button.Text }}
+                              </center>
+                            </v:roundrect>
+                            {{ "<![endif]-->" | html }}
+                            {{ "<!--[if !mso]><!-- -->" | html }}
                             <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0">
                               <tr>
                                 <td align="center">
@@ -374,12 +383,13 @@ func (dt *Default) HTMLTemplate() string {
                                 </td>
                               </tr>
                             </table>
+														{{ "<!--<![endif]-->" | html }}
                           {{ end }}
                         {{ end }}
                       {{ end }}
 
                     {{ end }}
-                    {{ with .Email.Body.Outros }} 
+                    {{ with .Email.Body.Outros }}
                         {{ if gt (len .) 0 }}
                           {{ range $line := . }}
                             <p>{{ $line }}</p>
@@ -394,7 +404,7 @@ func (dt *Default) HTMLTemplate() string {
                     </p>
 
                     {{ if (eq .Email.Body.FreeMarkdown "") }}
-                      {{ with .Email.Body.Actions }} 
+                      {{ with .Email.Body.Actions }}
                         <table class="body-sub">
                           <tbody>
                               {{ range $action := . }}
@@ -477,13 +487,13 @@ func (dt *Default) PlainTextTemplate() string {
       </table>
     {{ end }}
   {{ end }}
-  {{ with .Email.Body.Actions }} 
+  {{ with .Email.Body.Actions }}
     {{ range $action := . }}
-      <p>{{ $action.Instructions }} {{ $action.Button.Link }}</p> 
+      <p>{{ $action.Instructions }} {{ $action.Button.Link }}</p>
     {{ end }}
   {{ end }}
 {{ end }}
-{{ with .Email.Body.Outros }} 
+{{ with .Email.Body.Outros }}
   {{ range $line := . }}
     <p>{{ $line }}<p>
   {{ end }}
